@@ -14,6 +14,7 @@ import { Input } from "@heroui/input";
 import { link as linkStyles } from "@heroui/theme";
 import NextLink from "next/link";
 import clsx from "clsx";
+import { account } from "@/lib/appwrite";
 
 import { siteConfig } from "@/config/site";
 import { ThemeSwitch } from "@/components/theme-switch";
@@ -25,8 +26,10 @@ import {
   SearchIcon,
   Logo,
 } from "@/components/icons";
+import { useRouter } from "next/router";
 
 export const Navbar = () => {
+  const router = useRouter();
   const searchInput = (
     <Input
       aria-label="Search"
@@ -48,6 +51,10 @@ export const Navbar = () => {
     />
   );
 
+  const signOut = async () => {
+    await account.deleteSession("current");
+  };
+
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
       <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
@@ -63,7 +70,7 @@ export const Navbar = () => {
               <NextLink
                 className={clsx(
                   linkStyles({ color: "foreground" }),
-                  "data-[active=true]:text-primary data-[active=true]:font-medium",
+                  "data-[active=true]:text-primary data-[active=true]:font-medium"
                 )}
                 color="foreground"
                 href={item.href}
@@ -121,13 +128,16 @@ export const Navbar = () => {
             <NavbarMenuItem key={`${item}-${index}`}>
               <Link
                 color={
-                  index === 2
-                    ? "primary"
-                    : index === siteConfig.navMenuItems.length - 1
-                      ? "danger"
-                      : "foreground"
+                  index === siteConfig.navMenuItems.length - 1
+                    ? "danger"
+                    : "foreground"
                 }
-                href="#"
+                onPress={async () => {
+                  if (item.label === "Logout") {
+                    await signOut();
+                  }
+                }}
+                href={item.href}
                 size="lg"
               >
                 {item.label}

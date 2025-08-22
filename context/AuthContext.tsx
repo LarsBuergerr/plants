@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         console.log("Checking session...");
         const accountData = await account.get();
+        console.log(accountData);
         setUser(accountData as User);
       } catch {
         setUser(null);
