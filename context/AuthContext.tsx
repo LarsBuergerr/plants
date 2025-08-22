@@ -8,6 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 import { account } from "@/lib/appwrite";
+import { useRouter } from "next/router";
 
 type User = {
   $id: string;
@@ -26,17 +27,24 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  console.log("AuthProvider initialized");
+  const router = useRouter();
+  console.log("Routr path:", router.pathname);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
+      console.log("Checking user session...");
       try {
         console.log("Checking session...");
         const accountData = await account.get();
         setUser(accountData as User);
       } catch {
         setUser(null);
+        if (router.pathname !== "/login") {
+          router.push("/login");
+        }
       } finally {
         setLoading(false);
       }

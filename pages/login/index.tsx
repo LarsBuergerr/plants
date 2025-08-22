@@ -13,12 +13,18 @@ export default function LoginPage() {
   const [loading, setLoading] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
   const [error, setError] = React.useState("");
-  const [resendVerificationVisible, setResendVerificationVisible] =
-    React.useState(false);
   const [resetPasswordVisible, setResetPasswordVisible] = React.useState(false);
 
   const signIn = async () => {
     setLoading(true);
+
+    try {
+      await account.createEmailPasswordSession(emailValue, passwordValue);
+      router.push("/");
+    } catch (err) {
+      setError("Invalid email or password");
+      setIsVisible(true);
+    }
   };
 
   return (
