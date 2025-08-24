@@ -7,7 +7,7 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Copy only package.json and lockfile first for better caching
-COPY package.json pnpm-lock.yaml ./
+COPY package.json ./
 RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
 # Copy the rest of the code
