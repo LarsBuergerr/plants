@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } catch {
         setUser(null);
         if (router.pathname !== "/login") {
-          router.push("/login");
+          // router.push("/login");
         }
       } finally {
         setLoading(false);
