@@ -9,40 +9,31 @@ import React, {
 } from "react";
 import { account } from "@/lib/appwrite";
 import { useRouter } from "next/router";
-
-type User = {
-  $id: string;
-  name: string;
-  email: string;
-  labels: string[];
-};
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { setCurrUid } from "@/store/appSlice";
 
 type AuthContextType = {
-  user: User | null;
-  loading: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
+  userId: string | null;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  console.log("AuthProvider initialized");
   const router = useRouter();
-  console.log("Routr path:", router.pathname);
-  const [user, setUser] = useState<User | null>(null);
+  const dispatch = useDispatch();
+  const { currUid, authLoading, error } = useSelector(
+    (state: RootState) => state.app
+  );
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
-      console.log("Checking user session...");
       try {
-        console.log("Checking session...");
         const accountData = await account.get();
-        console.log(accountData);
-        setUser(accountData as User);
-      } catch {
-        setUser(null);
+        dispatch(setCurrUid(accountData.$id));
+      } catch (error) {
+        dispatch(setCurrUid(null));
         if (router.pathname !== "/login") {
           router.push("/login");
         }
@@ -52,31 +43,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     checkSession();
-  }, []);
-
-  const signIn = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      await account.createEmailPasswordSession(email, password);
-      const accountData = await account.get();
-      setUser(accountData as User);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const signOut = async () => {
-    setLoading(true);
-    try {
-      await account.deleteSession("current");
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [router.pathname]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ userId: currUid }}>
       {children}
     </AuthContext.Provider>
   );

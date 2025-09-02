@@ -6,6 +6,8 @@ import { useRouter } from "next/router";
 import { fontSans, fontMono } from "@/config/fonts";
 import "@/styles/globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { Provider } from "react-redux";
+import { store } from "@/store";
 
 // Wrap the entire app with AuthProvider
 
@@ -13,13 +15,15 @@ export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   return (
-    <AuthProvider>
-      <HeroUIProvider navigate={router.push}>
-        <NextThemesProvider attribute="class" defaultTheme="light">
-          <Component {...pageProps} />
-        </NextThemesProvider>
-      </HeroUIProvider>
-    </AuthProvider>
+    <Provider store={store}>
+      <AuthProvider>
+        <HeroUIProvider navigate={router.push}>
+          <NextThemesProvider attribute="class" defaultTheme="light">
+            <Component {...pageProps} />
+          </NextThemesProvider>
+        </HeroUIProvider>
+      </AuthProvider>
+    </Provider>
   );
 }
 

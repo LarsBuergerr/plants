@@ -6,24 +6,34 @@ import React from "react";
 import { Button } from "@heroui/button";
 import { Alert } from "@heroui/alert";
 import { account } from "@/lib/appwrite";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/store";
+import { setAuthLoading, setCurrUid } from "@/store/appSlice";
 export default function LoginPage() {
   const router = useRouter();
   const [emailValue, setEmailValue] = React.useState("");
   const [passwordValue, setPasswordValue] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
   const [isVisible, setIsVisible] = React.useState(false);
   const [error, setError] = React.useState("");
   const [resetPasswordVisible, setResetPasswordVisible] = React.useState(false);
+  const dispatch = useDispatch();
+  const { authLoading } = useSelector((state: RootState) => state.app);
 
   const signIn = async () => {
-    setLoading(true);
-
+    dispatch(setAuthLoading(true));
     try {
-      await account.createEmailPasswordSession(emailValue, passwordValue);
+      const session = await account.createEmailPasswordSession(
+        emailValue,
+        passwordValue
+      );
+      dispatch(setCurrUid(session.userId));
+      dispatch(setAuthLoading(false));
       router.push("/");
     } catch (err) {
       setError("Invalid email or password");
       setIsVisible(true);
+      dispatch(setAuthLoading(false));
+      dispatch(setCurrUid(null));
     }
   };
 
