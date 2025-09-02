@@ -39,10 +39,34 @@ export const Navbar = () => {
   const { plants } = useSelector((state: RootState) => state.plants);
 
   const signOut = async () => {
-    await account.deleteSession("current");
-    dispatch(setCurrUid(null));
-    dispatch(resetPlants());
+    try {
+      await account.deleteSession("current");
+      dispatch(setCurrUid(null));
+      dispatch(resetPlants());
+      router.push("/login");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Force logout even if API call fails
+      dispatch(setCurrUid(null));
+      dispatch(resetPlants());
+      router.push("/login");
+    }
   };
+
+  // Filter nav items based on authentication state
+  const getVisibleNavItems = () => {
+    return siteConfig.navMenuItems.filter((item) => {
+      if (item.label === "Logout") {
+        return currUid !== null; // Only show logout when user is logged in
+      }
+      if (item.label === "Login") {
+        return currUid === null; // Only show login when user is not logged in
+      }
+      return true; // Show all other items
+    });
+  };
+
+  const visibleNavItems = getVisibleNavItems();
 
   return (
     <HeroUINavbar maxWidth="xl" position="sticky">
@@ -54,21 +78,20 @@ export const Navbar = () => {
           </NextLink>
         </NavbarBrand>
         <div className="hidden lg:flex gap-4 justify-start ml-2">
-          {siteConfig.navMenuItems.map((item, index) => (
+          {visibleNavItems.map((item, index) => (
             <NavbarItem key={item.href}>
               <Link
-                color={
-                  index === siteConfig.navMenuItems.length - 1
-                    ? "danger"
-                    : "foreground"
-                }
+                color={item.label === "Logout" ? "danger" : "foreground"}
                 onPress={async () => {
                   if (item.label === "Logout") {
                     await signOut();
+                  } else if (item.href) {
+                    router.push(item.href);
                   }
                 }}
-                href={item.href}
+                href={item.label === "Logout" ? undefined : item.href}
                 size="lg"
+                className={item.label === "Logout" ? "cursor-pointer" : ""}
               >
                 {item.label}
               </Link>
@@ -94,21 +117,20 @@ export const Navbar = () => {
 
       <NavbarMenu>
         <div className="mx-4 mt-2 flex flex-col gap-2">
-          {siteConfig.navMenuItems.map((item, index) => (
+          {visibleNavItems.map((item, index) => (
             <NavbarMenuItem key={`${item}-${index}`}>
               <Link
-                color={
-                  index === siteConfig.navMenuItems.length - 1
-                    ? "danger"
-                    : "foreground"
-                }
+                color={item.label === "Logout" ? "danger" : "foreground"}
                 onPress={async () => {
                   if (item.label === "Logout") {
                     await signOut();
+                  } else if (item.href) {
+                    router.push(item.href);
                   }
                 }}
-                href={item.href}
+                href={item.label === "Logout" ? undefined : item.href}
                 size="lg"
+                className={item.label === "Logout" ? "cursor-pointer" : ""}
               >
                 {item.label}
               </Link>
