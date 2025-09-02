@@ -27,12 +27,21 @@ import {
   Logo,
 } from "@/components/icons";
 import { useRouter } from "next/router";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store";
+import { resetPlants } from "@/store/plantSlice";
+import { setCurrUid } from "@/store/appSlice";
 
 export const Navbar = () => {
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const { currUid } = useSelector((state: RootState) => state.app);
+  const { plants } = useSelector((state: RootState) => state.plants);
 
   const signOut = async () => {
     await account.deleteSession("current");
+    dispatch(setCurrUid(null));
+    dispatch(resetPlants());
   };
 
   return (
@@ -110,3 +119,6 @@ export const Navbar = () => {
     </HeroUINavbar>
   );
 };
+function setCurrentUser(arg0: null): any {
+  throw new Error("Function not implemented.");
+}
