@@ -141,6 +141,3 @@ export const Navbar = () => {
     </HeroUINavbar>
   );
 };
-function setCurrentUser(arg0: null): any {
-  throw new Error("Function not implemented.");
-}

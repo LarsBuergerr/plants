@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const dispatch = useDispatch();
   const { currUid, authLoading, error } = useSelector(
-    (state: RootState) => state.app
+    (state: RootState) => state.app,
   );
   const [loading, setLoading] = useState(true);
 

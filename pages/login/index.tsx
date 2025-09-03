@@ -24,7 +24,7 @@ export default function LoginPage() {
     try {
       const session = await account.createEmailPasswordSession(
         emailValue,
-        passwordValue
+        passwordValue,
       );
       dispatch(setCurrUid(session.userId));
       dispatch(setAuthLoading(false));
