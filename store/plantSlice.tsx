@@ -1,10 +1,11 @@
-import { Plant } from "@/types/plant.type";
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { databases } from "@/lib/appwrite";
+import { Plant, PlantWithImages } from "@/types/plant.type";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { databases, storage } from "@/lib/appwrite";
 import { Models, Query } from "appwrite";
+import { ID } from "appwrite";
 
 interface AppState {
-  plants: (Models.Document & Plant)[];
+  plants: (Models.Document & PlantWithImages)[];
   loading: boolean;
   error: string | null;
 }
@@ -25,8 +26,114 @@ export const fetchPlants = createAsyncThunk(
           "68a70f5f00300c65a93e",
           [Query.equal("uid", uid)]
         )
-      ).documents;
-      return data as Models.Document[];
+      ).documents as Models.Document[] as Models.Document & PlantWithImages[];
+
+      for (const plant of data) {
+        if (plant.headerImage) {
+          try {
+            const imageLink = await storage.getFileView(
+              "plant_header_images",
+              plant.headerImage
+            );
+            plant.headerImageUrl = imageLink;
+          } catch (error) {
+            console.error("Error fetching image preview:", error);
+          }
+        }
+        {
+          /* vorübergehend auskommentiert wird später implementiert **/
+        }
+        // if (plant.images && plant.images.length > 0) {
+        //   const imageLinks: string[] = [];
+        //   for (const image of plant.images) {
+        //     try {
+        //       const imageLink = await storage.getFileView(
+        //         "plant_images",
+        //         image
+        //       );
+        //       imageLinks.push(imageLink);
+        //     } catch (error) {
+        //       console.error("Error fetching image preview:", error);
+        //     }
+        //   }
+        //   plant.imageUrls = imageLinks;
+        // }
+      }
+      return data;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const createPlant = createAsyncThunk(
+  "plants/createPlant",
+  async (
+    {
+      uid,
+      name,
+      lastWateredAt,
+      headerImage,
+    }: {
+      uid: string;
+      name: string;
+      lastWateredAt: Date;
+      headerImage?: string;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const newDoc = (await databases.createDocument(
+        "68a70f580027558c1ff5",
+        "68a70f5f00300c65a93e",
+        ID.unique(),
+        { uid, name, lastWateredAt, headerImage }
+      )) as Models.Document & PlantWithImages;
+
+      if (newDoc.headerImage) {
+        try {
+          newDoc.headerImageUrl = await storage.getFileView(
+            "plant_header_images",
+            newDoc.headerImage
+          );
+        } catch (error) {
+          console.error("Error fetching image preview:", error);
+        }
+      }
+
+      return newDoc;
+    } catch (error) {
+      return rejectWithValue(error);
+    }
+  }
+);
+
+export const updatePlant = createAsyncThunk(
+  "plants/updatePlant",
+  async (
+    { id, data }: { id: string; data: Partial<Plant> },
+    { rejectWithValue }
+  ) => {
+    try {
+      const updatedDoc = (await databases.updateDocument(
+        "68a70f580027558c1ff5",
+        "68a70f5f00300c65a93e",
+        id,
+        data as Models.DataWithoutDocumentKeys & Partial<Plant>
+      )) as Models.Document & PlantWithImages;
+
+      if (updatedDoc.headerImage) {
+        try {
+          updatedDoc.headerImageUrl = await storage.getFileView(
+            "plant_header_images",
+            updatedDoc.headerImage
+          );
+        } catch (error) {
+          console.error("Error fetching image preview:", error);
+        }
+      }
+
+      return updatedDoc;
     } catch (error) {
       return rejectWithValue(error);
     }
@@ -42,17 +149,31 @@ const plantSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchPlants.pending, (state, action) => {
+    // FETCH
+    builder.addCase(fetchPlants.pending, (state) => {
       state.loading = true;
       state.error = null;
     });
     builder.addCase(fetchPlants.fulfilled, (state, action) => {
-      state.plants = action.payload as (Models.Document & Plant)[];
+      state.plants = action.payload;
       state.loading = false;
     });
     builder.addCase(fetchPlants.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
+    });
+
+    // CREATE
+    builder.addCase(createPlant.fulfilled, (state, action) => {
+      state.plants.push(action.payload);
+    });
+
+    // UPDATE
+    builder.addCase(updatePlant.fulfilled, (state, action) => {
+      const index = state.plants.findIndex((p) => p.$id === action.payload.$id);
+      if (index !== -1) {
+        state.plants[index] = action.payload;
+      }
     });
   },
 });

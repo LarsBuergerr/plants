@@ -9,3 +9,9 @@ export type Plant = Models.Document & {
   comments?: string[];
   favorite?: boolean;
 };
+
+export type PlantWithImages = Models.Document &
+  Plant & {
+    headerImageUrl?: string;
+    imageUrls?: string[];
+  };
