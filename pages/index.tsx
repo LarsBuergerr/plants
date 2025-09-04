@@ -26,7 +26,6 @@ export default function IndexPage() {
     if (typeof currUid === "string") {
       dispatch(fetchPlants(currUid));
     }
-    console.log(plants);
   }, [currUid, dispatch]);
 
   const handleAddPlant = () => {
@@ -54,12 +53,14 @@ export default function IndexPage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {plants.map((plant) => (
-            <Card className="relative py-4" key={plant.$id}>
+            <Card className="relative" key={plant.$id}>
               <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                 <div className="flex justify-between w-full items-center">
-                  <p className="text-tiny uppercase font-bold">{plant.name}</p>
+                  <p className="text-tiny uppercase font-bold line-clamp-2">
+                    {plant.name}
+                  </p>
                   <Button
                     isIconOnly
                     size="sm"
@@ -69,16 +70,18 @@ export default function IndexPage() {
                     Edit
                   </Button>
                 </div>
-                <h4 className="font-bold text-large">
+                <h4 className="hidden md:block lg:block font-bold text-large">
                   {new Date(plant.lastWateredAt).toLocaleString()}
                 </h4>
               </CardHeader>
               <CardBody className="overflow-visible py-2">
-                <Image
-                  alt={plant.name}
-                  className="object-cover rounded-xl w-full"
-                  src={plant.headerImageUrl}
-                />
+                <div className="aspect-square md:aspect-5/6 w-full overflow-hidden rounded-xl">
+                  <Image
+                    alt={plant.name}
+                    className="object-cover rounded-xl w-full"
+                    src={plant.headerImageUrl}
+                  />
+                </div>
               </CardBody>
             </Card>
           ))}
