@@ -92,7 +92,6 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
         })
       );
     }
-
     onOpenChange(false);
   };
 
