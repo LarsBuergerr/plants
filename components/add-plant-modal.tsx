@@ -28,7 +28,7 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
 
   const [name, setName] = useState("");
   const [lastWateredAt, setLastWateredAt] = useState(
-    new Date().toISOString().slice(0, 16),
+    new Date().toISOString().slice(0, 16)
   );
   const [headerFile, setHeaderFile] = useState<File | null>(null);
 
@@ -36,7 +36,7 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
     if (plant) {
       setName(plant.name);
       setLastWateredAt(
-        new Date(plant.lastWateredAt).toISOString().slice(0, 16),
+        new Date(plant.lastWateredAt).toISOString().slice(0, 16)
       );
     } else {
       setName("");
@@ -63,7 +63,7 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
         const uploaded = await storage.createFile(
           "plant_header_images",
           ID.unique(),
-          headerFile,
+          headerFile
         );
         headerImageId = uploaded.$id;
       } catch (error) {
@@ -80,7 +80,7 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
             lastWateredAt: new Date(lastWateredAt),
             headerImage: headerImageId ? headerImageId : undefined,
           },
-        }),
+        })
       );
     } else {
       await dispatch(
@@ -89,7 +89,7 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
           name,
           lastWateredAt: new Date(lastWateredAt),
           headerImage: headerImageId ? headerImageId : undefined,
-        }),
+        })
       );
     }
 
@@ -97,7 +97,7 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
   };
 
   return (
-    <Modal isOpen={open} onOpenChange={onOpenChange}>
+    <Modal isOpen={open} onOpenChange={onOpenChange} placement="top-center">
       <ModalContent>
         {(onClose) => (
           <>
