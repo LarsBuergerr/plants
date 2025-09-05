@@ -5,12 +5,16 @@ export const siteConfig = {
   description: "Collect and manage your plants :3",
   navMenuItems: [
     {
-      label: "Dashboard",
-      href: "/dashboard",
-    },
-    {
       label: "Profile",
       href: "/profile",
+    },
+    {
+      label: "Wishlist",
+      href: "/wishlist",
+    },
+    {
+      label: "Graveyard",
+      href: "/graveyard",
     },
     {
       label: "Logout",

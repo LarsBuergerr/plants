@@ -128,10 +128,14 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
               </div>
             </ModalBody>
             <ModalFooter>
-              <Button variant="light" onPress={onClose}>
+              <Button variant="light" onPress={onClose} className="text-white">
                 Cancel
               </Button>
-              <Button color="primary" onPress={handleSubmit}>
+              <Button
+                color="primary"
+                onPress={handleSubmit}
+                className="text-white"
+              >
                 {plant ? "Update" : "Save"}
               </Button>
             </ModalFooter>

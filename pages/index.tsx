@@ -47,6 +47,7 @@ export default function IndexPage() {
         <div className="flex items-center justify-between w-full max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold">Plant Collection</h2>
           <Button
+            className="text-white"
             variant="solid"
             color="primary"
             startContent="Add Plant"

@@ -78,7 +78,7 @@ export default function WaterBubble({ plant }: WaterBubbleProps) {
               value={lastWateredAt}
               onChange={(e) => setLastWateredAt(e.target.value)}
             />
-            <Button color="primary" onPress={handleSave}>
+            <Button color="primary" onPress={handleSave} className="text-white">
               Save
             </Button>
           </ModalBody>
