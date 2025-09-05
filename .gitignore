@@ -40,4 +40,5 @@ bun.lockb
 
 .env
 
-public
+public/sw.js
+public/workbox-*.js
