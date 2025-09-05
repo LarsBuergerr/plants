@@ -45,15 +45,15 @@ export default function IndexPage() {
     <DefaultLayout>
       <section className="flex flex-col gap-6 pb-4 md:py-10">
         <div className="flex items-center justify-between w-full max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold">Plant Collection</h2>
+          <h2 className="text-2xl font-bold">my collection</h2>
           <Button
             className="text-white"
             variant="solid"
             color="primary"
-            startContent="Add Plant"
+            startContent="add"
             onPress={handleAddPlant}
           >
-            Add Plant
+            add plant
           </Button>
         </div>
 
@@ -62,7 +62,7 @@ export default function IndexPage() {
             <Card className="relative" key={plant.$id}>
               <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                 <div className="flex justify-between w-full items-center">
-                  <p className="text-tiny uppercase font-bold line-clamp-2">
+                  <p className="text-sm font-bold line-clamp-2 font-serif pr-2">
                     {plant.name}
                   </p>
                   <div className="flex items-center gap-2">

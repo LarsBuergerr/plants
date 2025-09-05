@@ -70,16 +70,16 @@ export default function WaterBubble({ plant }: WaterBubbleProps) {
       {/* Modal */}
       <Modal isOpen={isOpen} onOpenChange={setIsOpen} placement="top-center">
         <ModalContent>
-          <ModalHeader>Water {plant.name}</ModalHeader>
+          <ModalHeader>water {plant.name}</ModalHeader>
           <ModalBody className="flex flex-col gap-4">
             <Input
-              label="Last Watered At"
+              label="last watered at"
               type="datetime-local"
               value={lastWateredAt}
               onChange={(e) => setLastWateredAt(e.target.value)}
             />
             <Button color="primary" onPress={handleSave} className="text-white">
-              Save
+              save
             </Button>
           </ModalBody>
         </ModalContent>

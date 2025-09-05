@@ -101,23 +101,23 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1">
-              {plant ? "Edit Plant" : "Add New Plant"}
+              {plant ? "edit plant" : "add new plant"}
             </ModalHeader>
             <ModalBody>
               <Input
-                label="Plant Name"
+                label="plant name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter plant name"
+                placeholder="enter plant name"
               />
               <Input
-                label="Last Watered At"
+                label="last watered at"
                 type="datetime-local"
                 value={lastWateredAt}
                 onChange={(e) => setLastWateredAt(e.target.value)}
               />
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">Header Image</label>
+                <label className="text-sm font-medium">header image</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -129,14 +129,14 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
             </ModalBody>
             <ModalFooter>
               <Button variant="light" onPress={onClose} className="text-white">
-                Cancel
+                cancel
               </Button>
               <Button
                 color="primary"
                 onPress={handleSubmit}
                 className="text-white"
               >
-                {plant ? "Update" : "Save"}
+                {plant ? "update" : "save"}
               </Button>
             </ModalFooter>
           </>
