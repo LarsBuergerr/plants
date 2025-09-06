@@ -30,9 +30,15 @@ function getDaysWithoutWatering(lastWateredAt: string) {
 
 type WaterBubbleProps = {
   plant: Models.Document & PlantWithImages;
+  width?: number | string; // accepts px or tailwind-like values
+  height?: number | string;
 };
 
-export default function WaterBubble({ plant }: WaterBubbleProps) {
+export default function WaterBubble({
+  plant,
+  width = 40, // default 40px (same as w-10)
+  height = 32, // default 32px (same as h-8)
+}: WaterBubbleProps) {
   const dispatch = useDispatch<AppDispatch>();
   const [isOpen, setIsOpen] = useState(false);
   const [lastWateredAt, setLastWateredAt] = useState(
@@ -57,8 +63,10 @@ export default function WaterBubble({ plant }: WaterBubbleProps) {
     <>
       {/* The bubble */}
       <button
-        className="w-10 h-8 rounded-full shadow-md flex items-center justify-center text-white font-bold transition-colors"
+        className="rounded-full shadow-md flex items-center justify-center text-white font-bold transition-colors"
         style={{
+          width,
+          height,
           backgroundColor: getWaterColor(plant.lastWateredAt.toString()),
         }}
         onClick={() => setIsOpen(true)}

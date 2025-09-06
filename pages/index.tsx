@@ -36,16 +36,11 @@ export default function IndexPage() {
     setIsModalOpen(true);
   };
 
-  const handleEditPlant = (plant: Models.Document & PlantWithImages) => {
-    setSelectedPlant(plant);
-    setIsModalOpen(true);
-  };
-
   return (
     <DefaultLayout>
       <section className="flex flex-col gap-6 pb-4 md:py-10">
         <div className="flex items-center justify-between w-full max-w-5xl mx-auto">
-          <h2 className="text-2xl font-bold">my collection</h2>
+          <h2 className="text-2xl font-bold">my collection &lt;3 </h2>
           <Button
             className="text-white"
             variant="solid"
