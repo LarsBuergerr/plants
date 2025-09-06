@@ -42,8 +42,8 @@ export const fetchPlants = createAsyncThunk(
         }
       }
       return data;
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -70,8 +70,8 @@ export const fetchPlantById = createAsyncThunk(
       }
 
       return plant;
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -112,8 +112,8 @@ export const createPlant = createAsyncThunk(
       }
 
       return newDoc;
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -138,14 +138,30 @@ export const updatePlant = createAsyncThunk(
             "plant_header_images",
             updatedDoc.headerImage
           );
-        } catch (error) {
+        } catch (error: any) {
           console.error("Error fetching image preview:", error);
         }
       }
 
       return updatedDoc;
-    } catch (error) {
-      return rejectWithValue(error);
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deletePlantById = createAsyncThunk(
+  "plants/deletePlantById",
+  async ({ id }: { id: string }, { rejectWithValue }) => {
+    try {
+      await databases.deleteDocument(
+        "68a70f580027558c1ff5",
+        "68a70f5f00300c65a93e",
+        id
+      );
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
     }
   }
 );
@@ -181,6 +197,9 @@ const plantSlice = createSlice({
         state.plants.push(action.payload);
       }
     });
+    builder.addCase(fetchPlantById.rejected, (state, action) => {
+      state.error = action.payload as string;
+    });
 
     // CREATE
     builder.addCase(createPlant.fulfilled, (state, action) => {
@@ -193,6 +212,11 @@ const plantSlice = createSlice({
       if (index !== -1) {
         state.plants[index] = action.payload;
       }
+    });
+
+    // DELETE
+    builder.addCase(deletePlantById.fulfilled, (state, action) => {
+      state.plants = state.plants.filter((p) => p.$id !== action.payload);
     });
   },
 });
