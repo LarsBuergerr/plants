@@ -3,6 +3,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { databases, storage } from "@/lib/appwrite";
 import { Models, Query } from "appwrite";
 import { ID } from "appwrite";
+import { JourneyComment } from "@/types/journey_comment.type";
+import { JourneyImage } from "@/types/journey_image.type";
 
 interface AppState {
   plants: (Models.Document & PlantWithImages)[];
@@ -97,7 +99,14 @@ export const createPlant = createAsyncThunk(
         "68a70f580027558c1ff5",
         "68a70f5f00300c65a93e",
         ID.unique(),
-        { uid, name, lastWateredAt, headerImage }
+        {
+          uid,
+          name,
+          lastWateredAt,
+          headerImage,
+          journeyImages: [],
+          journeyComments: [],
+        }
       )) as Models.Document & PlantWithImages;
 
       if (newDoc.headerImage) {
@@ -166,6 +175,62 @@ export const deletePlantById = createAsyncThunk(
   }
 );
 
+export const addJourneyComment = createAsyncThunk(
+  "plants/addJourneyComment",
+  async (
+    {
+      plantId,
+      comment,
+      date,
+    }: { plantId: string; comment: string; date: Date },
+    { rejectWithValue }
+  ) => {
+    try {
+      const newComment = (await databases.createDocument(
+        "68a70f580027558c1ff5",
+        "68bc57f7000de0726cba",
+        ID.unique(),
+        {
+          plant: plantId,
+          comment,
+          date,
+        }
+      )) as Models.Document;
+      return newComment as Models.Document & JourneyComment;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const addJourneyImage = createAsyncThunk(
+  "plants/addJourneyImage",
+  async (
+    {
+      plantId,
+      imageId,
+      date,
+    }: { plantId: string; imageId: string; date: Date },
+    { rejectWithValue }
+  ) => {
+    try {
+      const newImage = (await databases.createDocument(
+        "68a70f580027558c1ff5",
+        "68bc571800090c2c0f11",
+        ID.unique(),
+        {
+          plant: plantId,
+          imageId,
+          date,
+        }
+      )) as Models.Document;
+      return newImage as Models.Document & JourneyImage;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const plantSlice = createSlice({
   name: "plants",
   initialState,
@@ -217,6 +282,36 @@ const plantSlice = createSlice({
     // DELETE
     builder.addCase(deletePlantById.fulfilled, (state, action) => {
       state.plants = state.plants.filter((p) => p.$id !== action.payload);
+    });
+
+    builder.addCase(deletePlantById.rejected, (state, action) => {
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(addJourneyComment.rejected, (state, action) => {
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(addJourneyComment.fulfilled, (state, action) => {
+      const plant = state.plants.find(
+        (p) => p.$id === action.payload.plant.$id
+      );
+      if (plant) {
+        plant.journeyComments.push(action.payload);
+      }
+    });
+
+    builder.addCase(addJourneyImage.rejected, (state, action) => {
+      state.error = action.payload as string;
+    });
+
+    builder.addCase(addJourneyImage.fulfilled, (state, action) => {
+      const plant = state.plants.find(
+        (p) => p.$id === action.payload.plant.$id
+      );
+      if (plant) {
+        plant.journeyImages.push(action.payload);
+      }
     });
   },
 });
