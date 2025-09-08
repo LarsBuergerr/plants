@@ -71,9 +71,11 @@ export default function IndexPage() {
             <Card className="relative" key={plant.$id}>
               <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
                 <div className="flex justify-between w-full items-center">
-                  <p className="text-sm font-bold line-clamp-2 font-serif pr-2">
-                    {plant.name}
-                  </p>
+                  <div className="min-h-[3rem] flex items-center pr-2 w-full">
+                    <p className="text-tiny font-bold line-clamp-3 font-serif w-full">
+                      {plant.name}
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2">
                     <WaterBubble plant={plant} />
                   </div>
