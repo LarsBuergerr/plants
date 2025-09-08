@@ -20,16 +20,29 @@ const initialState: AppState = {
 
 export const fetchPlants = createAsyncThunk(
   "plants/fetchPlants",
-  async (uid: string, { rejectWithValue }) => {
+  async (
+    {
+      uid,
+      limit = 10,
+      cursor,
+    }: { uid: string; limit?: number; cursor?: string },
+    { rejectWithValue }
+  ) => {
     try {
+      const queries = [Query.equal("uid", uid), Query.limit(limit)];
+      if (cursor) {
+        queries.push(Query.cursorAfter(cursor));
+      }
+
       const data = (
         await databases.listDocuments(
           "68a70f580027558c1ff5",
           "68a70f5f00300c65a93e",
-          [Query.equal("uid", uid)]
+          queries
         )
       ).documents as Models.Document[] as Models.Document & PlantWithImages[];
 
+      // fetch headerImage urls
       for (const plant of data) {
         if (plant.headerImage) {
           try {
@@ -43,7 +56,8 @@ export const fetchPlants = createAsyncThunk(
           }
         }
       }
-      return data;
+
+      return { data, cursor }; // return cursor so reducer knows if it's a "load more"
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -246,7 +260,17 @@ const plantSlice = createSlice({
       state.error = null;
     });
     builder.addCase(fetchPlants.fulfilled, (state, action) => {
-      state.plants = action.payload;
+      const { data, cursor } = action.payload as {
+        data: (Models.Document & PlantWithImages)[];
+        cursor?: string;
+      };
+
+      if (cursor) {
+        state.plants = [...state.plants, ...data];
+      } else {
+        state.plants = data;
+      }
+
       state.loading = false;
     });
     builder.addCase(fetchPlants.rejected, (state, action) => {

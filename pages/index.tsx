@@ -18,18 +18,32 @@ export default function IndexPage() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { currUid } = useSelector((state: RootState) => state.app);
-  const { plants } = useSelector((state: RootState) => state.plants);
+  const { plants, loading } = useSelector((state: RootState) => state.plants);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlant, setSelectedPlant] = useState<
     (Models.Document & PlantWithImages) | undefined
   >(undefined);
+  const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
     if (typeof currUid === "string") {
-      dispatch(fetchPlants(currUid));
+      dispatch(fetchPlants({ uid: currUid, limit: 12 }));
     }
   }, [currUid, dispatch]);
+
+  const handleLoadMore = async () => {
+    if (!plants.length) return;
+
+    const lastDocId = plants[plants.length - 1].$id;
+    const result = await dispatch(
+      fetchPlants({ uid: currUid!, limit: 12, cursor: lastDocId })
+    ).unwrap();
+
+    if (result.data.length === 0) {
+      setHasMore(false);
+    }
+  };
 
   const handleAddPlant = () => {
     setSelectedPlant(undefined);
@@ -70,9 +84,7 @@ export default function IndexPage() {
               </CardHeader>
               <CardBody
                 className="overflow-visible py-2"
-                onClick={() => {
-                  router.push(`/plant/${plant.$id}`);
-                }}
+                onClick={() => router.push(`/plant/${plant.$id}`)}
               >
                 <div className="aspect-square md:aspect-5/6 w-full overflow-hidden rounded-xl">
                   <Image
@@ -85,6 +97,19 @@ export default function IndexPage() {
             </Card>
           ))}
         </div>
+
+        {hasMore && (
+          <div className="flex justify-center mt-2">
+            <Button
+              onPress={handleLoadMore}
+              disabled={loading}
+              variant="flat"
+              color="primary"
+            >
+              {loading ? "Loading..." : "Load More"}
+            </Button>
+          </div>
+        )}
       </section>
 
       <AddPlantModal
