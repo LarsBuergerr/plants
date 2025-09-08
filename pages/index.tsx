@@ -69,14 +69,14 @@ export default function IndexPage() {
         <div className="grid grid-cols-2 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {plants.map((plant) => (
             <Card className="relative" key={plant.$id}>
-              <CardHeader className="pb-0 pt-2 px-4 flex-col items-start">
+              <CardHeader className="pb-0 pt-2 px-2 flex-col items-start">
                 <div className="flex justify-between w-full items-center">
-                  <div className="min-h-[3rem] flex items-center pr-2 w-full">
+                  <div className="min-h-[3rem] flex items-center pr-1 w-full">
                     <p className="text-tiny font-bold line-clamp-3 font-serif w-full">
                       {plant.name}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <WaterBubble plant={plant} />
                   </div>
                 </div>
@@ -85,7 +85,7 @@ export default function IndexPage() {
                 </h4>
               </CardHeader>
               <CardBody
-                className="overflow-visible py-2"
+                className="overflow-visible py-2 px-2"
                 onClick={() => router.push(`/plant/${plant.$id}`)}
               >
                 <div className="aspect-square md:aspect-5/6 w-full overflow-hidden rounded-xl">
