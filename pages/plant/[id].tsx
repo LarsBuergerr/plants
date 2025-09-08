@@ -15,7 +15,12 @@ import {
 } from "@heroui/modal";
 import AddPlantModal from "@/components/add-plant-modal";
 import WaterBubble from "@/components/water-bubble";
-import { SendIcon } from "@/components/icons";
+import {
+  BeakerIcon,
+  FlowerPotIcon,
+  SendIcon,
+  WaterDropIcon,
+} from "@/components/icons";
 
 export default function PlantPage() {
   const router = useRouter();
@@ -86,15 +91,15 @@ export default function PlantPage() {
 
         <div className="flex gap-4 justify-between">
           <div className="flex gap-2 items-center">
-            last watered
+            <WaterDropIcon />
             <WaterBubble plant={plant} width={55} height={40} />
           </div>
           <div className="flex gap-2 items-center">
-            last fertilized
+            <BeakerIcon />
             <WaterBubble plant={plant} width={55} height={40} />
           </div>
           <div className="flex gap-2 items-center">
-            last repotted
+            <FlowerPotIcon />
             <WaterBubble plant={plant} width={55} height={40} />
           </div>
         </div>

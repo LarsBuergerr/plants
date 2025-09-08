@@ -28,7 +28,7 @@ export default function IndexPage() {
 
   useEffect(() => {
     if (typeof currUid === "string") {
-      dispatch(fetchPlants({ uid: currUid, limit: 12 }));
+      dispatch(fetchPlants({ uid: currUid, limit: 30 }));
     }
   }, [currUid, dispatch]);
 
@@ -37,7 +37,7 @@ export default function IndexPage() {
 
     const lastDocId = plants[plants.length - 1].$id;
     const result = await dispatch(
-      fetchPlants({ uid: currUid!, limit: 12, cursor: lastDocId })
+      fetchPlants({ uid: currUid!, limit: 18, cursor: lastDocId })
     ).unwrap();
 
     if (result.data.length === 0) {
