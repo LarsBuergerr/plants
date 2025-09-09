@@ -42,13 +42,16 @@ export const fetchPlants = createAsyncThunk(
         )
       ).documents as Models.Document[] as Models.Document & PlantWithImages[];
 
-      // fetch headerImage urls
       for (const plant of data) {
         if (plant.headerImage) {
           try {
-            const imageLink = await storage.getFileView(
+            const imageLink = storage.getFilePreview(
               "plant_header_images",
-              plant.headerImage
+              plant.headerImage,
+              undefined,
+              undefined,
+              undefined,
+              50
             );
             plant.headerImageUrl = imageLink;
           } catch (error) {
@@ -57,7 +60,7 @@ export const fetchPlants = createAsyncThunk(
         }
       }
 
-      return { data, cursor }; // return cursor so reducer knows if it's a "load more"
+      return { data, cursor };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -76,7 +79,7 @@ export const fetchPlantById = createAsyncThunk(
 
       if (plant.headerImage) {
         try {
-          plant.headerImageUrl = await storage.getFileView(
+          plant.headerImageUrl = await storage.getFilePreview(
             "plant_header_images",
             plant.headerImage
           );
@@ -98,11 +101,13 @@ export const createPlant = createAsyncThunk(
     {
       uid,
       name,
+      botanicalName,
       lastWateredAt,
       headerImage,
     }: {
       uid: string;
       name: string;
+      botanicalName?: string;
       lastWateredAt: Date;
       headerImage?: string;
     },
@@ -114,10 +119,11 @@ export const createPlant = createAsyncThunk(
         "68a70f5f00300c65a93e",
         ID.unique(),
         {
-          uid,
-          name,
-          lastWateredAt,
-          headerImage,
+          uid: uid,
+          name: name,
+          botanicalName: botanicalName,
+          lastWateredAt: lastWateredAt,
+          headerImage: headerImage,
           journeyImages: [],
           journeyComments: [],
         }
@@ -125,7 +131,7 @@ export const createPlant = createAsyncThunk(
 
       if (newDoc.headerImage) {
         try {
-          newDoc.headerImageUrl = await storage.getFileView(
+          newDoc.headerImageUrl = await storage.getFilePreview(
             "plant_header_images",
             newDoc.headerImage
           );
@@ -157,7 +163,7 @@ export const updatePlant = createAsyncThunk(
 
       if (updatedDoc.headerImage) {
         try {
-          updatedDoc.headerImageUrl = await storage.getFileView(
+          updatedDoc.headerImageUrl = await storage.getFilePreview(
             "plant_header_images",
             updatedDoc.headerImage
           );
@@ -195,8 +201,9 @@ export const addJourneyComment = createAsyncThunk(
     {
       plantId,
       comment,
+      icon,
       date,
-    }: { plantId: string; comment: string; date: Date },
+    }: { plantId: string; comment: string; icon?: string; date: Date },
     { rejectWithValue }
   ) => {
     try {
@@ -207,6 +214,7 @@ export const addJourneyComment = createAsyncThunk(
         {
           plant: plantId,
           comment,
+          icon,
           date,
         }
       )) as Models.Document;
@@ -223,8 +231,9 @@ export const addJourneyImage = createAsyncThunk(
     {
       plantId,
       imageId,
+      icon,
       date,
-    }: { plantId: string; imageId: string; date: Date },
+    }: { plantId: string; imageId: string; icon?: string; date: Date },
     { rejectWithValue }
   ) => {
     try {
@@ -235,6 +244,7 @@ export const addJourneyImage = createAsyncThunk(
         {
           plant: plantId,
           imageId,
+          icon,
           date,
         }
       )) as Models.Document;

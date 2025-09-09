@@ -13,6 +13,7 @@ import { Models } from "appwrite";
 import { PlantWithImages } from "@/types/plant.type";
 import WaterBubble from "@/components/water-bubble";
 import { useRouter } from "next/router";
+import { CheckCircleIcon, PlusCircleIcon } from "@/components/icons";
 
 export default function IndexPage() {
   const router = useRouter();
@@ -55,42 +56,64 @@ export default function IndexPage() {
       <section className="flex flex-col gap-6 pb-4 md:py-10">
         <div className="flex items-center justify-between w-full max-w-5xl mx-auto">
           <h2 className="text-2xl font-bold">my collection &lt;3 </h2>
-          <Button
-            className="text-white"
-            variant="solid"
-            color="primary"
-            startContent="add"
-            onPress={handleAddPlant}
-          >
-            add plant
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              isIconOnly
+              className="text-white"
+              variant="solid"
+              color="secondary"
+              startContent="add"
+              onPress={handleAddPlant}
+            >
+              <CheckCircleIcon />
+            </Button>
+            <Button
+              isIconOnly
+              className="text-white"
+              variant="solid"
+              color="primary"
+              startContent="add"
+              onPress={handleAddPlant}
+            >
+              <PlusCircleIcon />
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {plants.map((plant) => (
             <Card className="relative" key={plant.$id}>
-              <CardHeader className="pb-0 pt-2 px-3 flex-col items-start">
+              <CardHeader className="pb-0 pt-2 px-3 flex-col items-start min-h-[3em] md:min-h-[80px]">
                 <div className="flex justify-between w-full items-center">
-                  <p className="text-tiny font-bold line-clamp-2 font-serif w-full pr-1">
+                  <p className="text-small font-bold line-clamp-2 font-serif w-full pr-1">
                     {plant.name}
                   </p>
                   <div className="flex items-center gap-2">
                     <WaterBubble plant={plant} width={30} height={30} />
                   </div>
                 </div>
-                <h4 className="hidden md:block lg:block font-bold text-large">
-                  {new Date(plant.lastWateredAt).toLocaleString()}
+                <h4 className="hidden md:block lg:block font-bold text-small text-default-500">
+                  {plant.botanicalName || "\u00A0"}
+                </h4>
+                <h4 className="hidden md:block lg:block font-bold text-md">
+                  {"last watered at " +
+                    new Date(plant.lastWateredAt).toLocaleString()}
                 </h4>
               </CardHeader>
               <CardBody
                 className="overflow-visible py-3 px-3"
                 onClick={() => router.push(`/plant/${plant.$id}`)}
               >
-                <div className="aspect-square md:aspect-5/6 w-full overflow-hidden rounded-xl">
+                <div className="relative aspect-square md:aspect-5/6 w-full overflow-hidden rounded-xl">
                   <Image
+                    loading="eager"
                     alt={plant.name}
-                    className="object-cover rounded-xl w-full"
                     src={plant.headerImageUrl}
+                    classNames={{
+                      wrapper: "w-full h-full",
+                      img: "w-full h-full object-cover",
+                    }}
+                    removeWrapper
                   />
                 </div>
               </CardBody>

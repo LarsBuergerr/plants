@@ -11,11 +11,16 @@ import {
   DropdownMenu,
   DropdownTrigger,
 } from "@heroui/dropdown";
+import { Image } from "@heroui/image";
+import { Divider } from "@heroui/divider";
 import { CommentIcon, EditIcon, ImageIcon } from "@/components/icons";
 import AddJourneyCommentModal from "@/components/add-journey-comment-modal";
 import AddJourneyImageModal from "@/components/add-journey-image-modal";
 import { JourneyImageWithUrl } from "@/types/journey_image.type";
 import { storage } from "@/lib/appwrite";
+import { emojiMap } from "@/components/emoji-picker-modal";
+import { Card, CardHeader } from "@heroui/card";
+import { SquarePen } from "lucide-react";
 
 export default function PlantPage() {
   const router = useRouter();
@@ -41,7 +46,10 @@ export default function PlantPage() {
       const imagesWithUrls: JourneyImageWithUrl[] = plant.journeyImages.map(
         (image) => ({
           ...image,
-          imageUrl: storage.getFileView("plant_journey_images", image.imageId),
+          imageUrl: storage.getFilePreview(
+            "plant_journey_images",
+            image.imageId
+          ),
         })
       );
       setJourneyImagesWithUrl(imagesWithUrls);
@@ -58,17 +66,36 @@ export default function PlantPage() {
     );
   }
 
+  const journeyEntries = [
+    ...plant.journeyComments.map((c) => ({
+      type: "comment" as const,
+      id: c.$id,
+      date: new Date(c.date),
+      icon: c.icon,
+      content: c.comment,
+    })),
+    ...journeyImagesWithUrl.map((img) => ({
+      type: "image" as const,
+      id: img.$id,
+      date: new Date(img.date),
+      icon: img.icon,
+      imageUrl: img.imageUrl,
+    })),
+  ];
+
+  journeyEntries.sort((a, b) => a.date.getTime() - b.date.getTime());
+
   return (
     <DefaultLayout>
       <section className="flex flex-col gap-6 max-w-3xl mx-auto py-8">
         <div className="flex w-full justify-between items-center">
-          <h1 className="text-3xl font-bold font-serif">
+          <h1 className="text-xl md:text-3xl lg:text-3xl font-bold font-serif">
             {plant.name}'s journey
           </h1>
           <div className="flex gap-2 items-center">
             <Dropdown>
               <DropdownTrigger>
-                <Button color="primary" className="text-white">
+                <Button color="primary" className="text-white" size="sm">
                   new entry <EditIcon></EditIcon>
                 </Button>
               </DropdownTrigger>
@@ -92,50 +119,67 @@ export default function PlantPage() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-6">
-          {plant.journeyComments.length === 0 && (
+        <div className="flex flex-col">
+          {journeyEntries.length === 0 && (
             <p className="text-center italic text-gray-500">
               no journey entries yet. add one!
             </p>
           )}
-          {plant.journeyComments
-            .slice()
-            .sort(
-              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-            )
-            .map((comment) => (
-              <div
-                key={comment.$id}
-                className="border rounded-lg p-4 bg-white shadow"
-              >
-                <p className="text-sm text-gray-500 mb-2">
-                  {new Date(comment.date).toLocaleString()}
-                </p>
-                <p className="whitespace-pre-line">{comment.comment}</p>
+
+          {journeyEntries.map((entry) => {
+            const Icon = entry.icon ? emojiMap[entry.icon] : null;
+
+            return (
+              <div key={entry.id} className="flex gap-4 pr-2">
+                <div className="flex flex-col items-center">
+                  {/* Top divider */}
+                  <Divider orientation="vertical" className="flex-1 w-1" />
+
+                  {/* Icon */}
+                  {Icon && (
+                    <div className="bg-white p-1 rounded-full z-10 border border-gray-300 p-2">
+                      <Icon className="w-6 h-6 text-gray-700" />
+                    </div>
+                  )}
+
+                  {/* Bottom divider */}
+                  <Divider orientation="vertical" className="flex-1 w-1" />
+                </div>
+
+                {/* Content */}
+                <div className="my-4 flex-1">
+                  <Card className="px-4 py-2">
+                    <CardHeader className="p-0 pb-4 text-sm text-gray-500 justify-between flex gap-5">
+                      {entry.date.toLocaleString()}
+
+                      <Button
+                        size="sm"
+                        isIconOnly
+                        color="primary"
+                        className="rounded-full"
+                      >
+                        <SquarePen className="w-4 h-4" color="white" />
+                      </Button>
+                    </CardHeader>
+
+                    {entry.type === "comment" ? (
+                      <p className="whitespace-pre-line">{entry.content}</p>
+                    ) : (
+                      entry.imageUrl && (
+                        <div className="pb-2">
+                          <Image
+                            src={entry.imageUrl}
+                            alt="Journey image"
+                            className="rounded-lg object-cover max-h-64"
+                          />
+                        </div>
+                      )
+                    )}
+                  </Card>
+                </div>
               </div>
-            ))}
-          {journeyImagesWithUrl
-            .slice()
-            .sort(
-              (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-            )
-            .map((image) => (
-              <div
-                key={image.$id}
-                className="border rounded-lg p-4 bg-white shadow flex flex-col gap-2"
-              >
-                <p className="text-sm text-gray-500">
-                  {new Date(image.date).toLocaleString()}
-                </p>
-                {image.imageUrl && (
-                  <img
-                    src={image.imageUrl}
-                    alt="Journey image"
-                    className="rounded-lg object-cover max-h-64 w-full"
-                  />
-                )}
-              </div>
-            ))}
+            );
+          })}
         </div>
       </section>
       <AddJourneyCommentModal

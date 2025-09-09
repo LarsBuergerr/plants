@@ -15,12 +15,16 @@ import {
 } from "@heroui/modal";
 import AddPlantModal from "@/components/add-plant-modal";
 import WaterBubble from "@/components/water-bubble";
+import { EditIcon, SendIcon, TrashIcon } from "@/components/icons";
+
 import {
-  BeakerIcon,
-  FlowerPotIcon,
-  SendIcon,
-  WaterDropIcon,
-} from "@/components/icons";
+  Droplets,
+  FlaskConical,
+  Archive,
+  Route,
+  Trash2,
+  SquarePen,
+} from "lucide-react";
 
 export default function PlantPage() {
   const router = useRouter();
@@ -61,46 +65,57 @@ export default function PlantPage() {
 
   return (
     <DefaultLayout>
-      <section className="flex flex-col gap-6 max-w-3xl mx-auto py-8">
+      <section className="flex flex-col gap-3 max-w-3xl mx-auto py-8">
         <div className="flex w-full justify-between items-center">
-          <h1 className="text-3xl font-bold font-serif">{plant.name}</h1>
+          <h1 className="text-xl md:text-3xl lg:text-4xl font-bold font-serif">
+            {plant.name}
+          </h1>
+
           <div className="flex gap-2 items-center">
             <Button
               variant="flat"
               color="danger"
+              isIconOnly
               onPress={() => setIsDeleteModalOpen(true)}
             >
-              delete
+              <Trash2 />
             </Button>
-            <Button variant="flat" onPress={() => setIsModalOpen(true)}>
-              edit
+
+            <Button
+              variant="flat"
+              onPress={() => setIsModalOpen(true)}
+              isIconOnly
+            >
+              <SquarePen />
             </Button>
+
             <Button
               color="primary"
-              className="text-white"
+              className="text-white width-sm"
               onPress={() => router.push(`/journey/${plant.$id}`)}
             >
-              journey
-              <SendIcon></SendIcon>
+              <span className="hidden md:inline">journey</span>
+              <Route />
             </Button>
           </div>
         </div>
-        <p className="text-gray-500">
-          Last watered: {new Date(plant.lastWateredAt).toLocaleDateString()}
+        <p className="text-default-500">{plant.botanicalName}</p>
+        <p className="text-default-500">
+          last watered: {new Date(plant.lastWateredAt).toLocaleDateString()}
         </p>
 
         <div className="flex gap-4 justify-between">
           <div className="flex gap-2 items-center">
-            <WaterDropIcon />
-            <WaterBubble plant={plant} width={55} height={40} />
+            <Droplets />
+            <WaterBubble plant={plant} width={55} height={35} />
           </div>
           <div className="flex gap-2 items-center">
-            <BeakerIcon />
-            <WaterBubble plant={plant} width={55} height={40} />
+            <FlaskConical />
+            <WaterBubble plant={plant} width={55} height={35} />
           </div>
           <div className="flex gap-2 items-center">
-            <FlowerPotIcon />
-            <WaterBubble plant={plant} width={55} height={40} />
+            <Archive />
+            <WaterBubble plant={plant} width={55} height={35} />
           </div>
         </div>
 
@@ -122,7 +137,11 @@ export default function PlantPage() {
         plant={plant}
       />
 
-      <Modal isOpen={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onOpenChange={setIsDeleteModalOpen}
+        placement="top-center"
+      >
         <ModalContent>
           <ModalHeader>delete plant</ModalHeader>
           <ModalBody>

@@ -9,10 +9,11 @@ import {
   ModalBody,
   ModalFooter,
 } from "@heroui/modal";
+import { Input } from "@heroui/input";
 import { addJourneyImage } from "@/store/plantSlice";
 import { storage } from "@/lib/appwrite";
 import { ID } from "appwrite";
-import { Input } from "@heroui/input";
+import EmojiPickerModal, { emojiMap } from "./emoji-picker-modal";
 
 type Props = {
   open: boolean;
@@ -31,6 +32,8 @@ export default function AddJourneyImageModal({
     new Date().toISOString().slice(0, 16)
   );
   const [uploading, setUploading] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState<string>("leaf");
+  const [isEmojiModalOpen, setIsEmojiModalOpen] = useState(false);
 
   const handleSubmit = async () => {
     if (!selectedFile) return;
@@ -48,6 +51,7 @@ export default function AddJourneyImageModal({
         addJourneyImage({
           plantId,
           imageId: uploaded.$id,
+          icon: selectedEmoji,
           date: new Date(imageDate),
         })
       );
@@ -61,32 +65,51 @@ export default function AddJourneyImageModal({
     }
   };
 
+  // Get the actual icon component for the selected emoji
+  const SelectedIcon = emojiMap[selectedEmoji];
+
   return (
     <Modal isOpen={open} onOpenChange={onOpenChange} placement="top-center">
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader>add image</ModalHeader>
+            <ModalHeader>Add Image</ModalHeader>
             <ModalBody className="flex flex-col gap-4">
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={(e) =>
-                  setSelectedFile(e.target.files ? e.target.files[0] : null)
-                }
-              />
-              <label className="flex flex-col">
-                date:
+              <div className="flex justify-center gap-2">
+                <Button
+                  isIconOnly
+                  color="primary"
+                  onPress={() => setIsEmojiModalOpen(true)}
+                  className="text-white"
+                >
+                  {SelectedIcon && (
+                    <SelectedIcon className="w-6 h-6 text-white" />
+                  )}
+                </Button>
+
                 <Input
-                  type="datetime-local"
-                  className="w-full"
-                  value={imageDate}
-                  onChange={(e) => setImageDate(e.target.value)}
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setSelectedFile(e.target.files ? e.target.files[0] : null)
+                  }
                 />
-              </label>
+              </div>
+
+              <Input
+                type="datetime-local"
+                className="w-full"
+                value={imageDate}
+                onChange={(e) => setImageDate(e.target.value)}
+              />
             </ModalBody>
+
             <ModalFooter className="flex justify-end gap-2">
-              <Button variant="light" onPress={onClose} className="text-white">
+              <Button
+                color="secondary"
+                onPress={onClose}
+                className="text-white"
+              >
                 cancel
               </Button>
               <Button
@@ -98,6 +121,12 @@ export default function AddJourneyImageModal({
                 {uploading ? "uploading..." : "submit"}
               </Button>
             </ModalFooter>
+
+            <EmojiPickerModal
+              open={isEmojiModalOpen}
+              onOpenChange={setIsEmojiModalOpen}
+              onSelect={(emoji) => setSelectedEmoji(emoji)}
+            />
           </>
         )}
       </ModalContent>

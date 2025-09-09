@@ -27,14 +27,17 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
   const { currUid } = useSelector((state: RootState) => state.app);
 
   const [name, setName] = useState("");
+  const [botanicalName, setBotanicalName] = useState("");
   const [lastWateredAt, setLastWateredAt] = useState(
     new Date().toISOString().slice(0, 16)
   );
   const [headerFile, setHeaderFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (plant) {
       setName(plant.name);
+      setBotanicalName(plant.botanicalName || "");
       setLastWateredAt(
         new Date(plant.lastWateredAt).toISOString().slice(0, 16)
       );
@@ -43,10 +46,19 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
       setLastWateredAt(new Date().toISOString().slice(0, 16));
     }
     setHeaderFile(null);
-  }, [plant]);
+  }, [plant, open]);
+
+  const handleCancel = () => {
+    onOpenChange(false);
+    setHeaderFile(null);
+    setBotanicalName("");
+    setName("");
+    setLastWateredAt(new Date().toISOString().slice(0, 16));
+  };
 
   const handleSubmit = async () => {
     if (!currUid || !name) return;
+    setLoading(true);
 
     let headerImageId: string | undefined;
 
@@ -71,28 +83,40 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
       }
     }
 
-    if (plant) {
-      await dispatch(
-        updatePlant({
-          id: plant.$id,
-          data: {
+    try {
+      if (plant) {
+        await dispatch(
+          updatePlant({
+            id: plant.$id,
+            data: {
+              name,
+              botanicalName,
+              lastWateredAt: new Date(lastWateredAt),
+              headerImage: headerImageId ? headerImageId : undefined,
+            },
+          })
+        ).unwrap();
+      } else {
+        await dispatch(
+          createPlant({
+            uid: currUid,
             name,
+            botanicalName,
             lastWateredAt: new Date(lastWateredAt),
             headerImage: headerImageId ? headerImageId : undefined,
-          },
-        })
-      );
-    } else {
-      await dispatch(
-        createPlant({
-          uid: currUid,
-          name,
-          lastWateredAt: new Date(lastWateredAt),
-          headerImage: headerImageId ? headerImageId : undefined,
-        })
-      );
+          })
+        ).unwrap();
+      }
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Error creating/updating plant:", error);
+    } finally {
+      setLoading(false);
+      setHeaderFile(null);
+      setBotanicalName("");
+      setName("");
+      setLastWateredAt(new Date().toISOString().slice(0, 16));
     }
-    onOpenChange(false);
   };
 
   return (
@@ -111,32 +135,44 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
                 placeholder="enter plant name"
               />
               <Input
+                label="botanical name"
+                value={botanicalName}
+                onChange={(e) => setBotanicalName(e.target.value)}
+                placeholder="enter botanical name"
+              />
+              <Input
                 label="last watered at"
                 type="datetime-local"
                 value={lastWateredAt}
                 onChange={(e) => setLastWateredAt(e.target.value)}
               />
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">header image</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    setHeaderFile(e.target.files ? e.target.files[0] : null)
-                  }
-                />
-              </div>
+
+              <Input
+                placeholder="upload header image"
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setHeaderFile(e.target.files ? e.target.files[0] : null)
+                }
+              />
             </ModalBody>
             <ModalFooter>
-              <Button variant="light" onPress={onClose} className="text-white">
+              <Button
+                onPress={handleCancel}
+                color="secondary"
+                className="text-white"
+                disabled={loading}
+              >
                 cancel
               </Button>
               <Button
                 color="primary"
                 onPress={handleSubmit}
                 className="text-white"
+                isLoading={loading}
+                disabled={loading}
               >
-                {plant ? "update" : "save"}
+                {loading ? "saving..." : plant ? "update" : "save"}
               </Button>
             </ModalFooter>
           </>

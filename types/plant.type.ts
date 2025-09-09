@@ -5,6 +5,7 @@ import { JourneyComment } from "./journey_comment.type";
 export type Plant = Models.Document & {
   uid: string;
   name: string;
+  botanicalName?: string;
   lastWateredAt: Date;
   headerImage?: string;
   images?: string[];
