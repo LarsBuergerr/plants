@@ -1,6 +1,5 @@
 import type { Models } from "appwrite";
-import { JourneyImage } from "./journey_image.type";
-import { JourneyComment } from "./journey_comment.type";
+import { JourneyEntry } from "./journey_entry.type";
 
 export type Plant = Models.Document & {
   uid: string;
@@ -8,12 +7,9 @@ export type Plant = Models.Document & {
   botanicalName?: string;
   lastWateredAt: Date;
   headerImage?: string;
-  images?: string[];
-  comments?: string[];
   favorite?: boolean;
 
-  journeyImages: (JourneyImage & Models.Document)[];
-  journeyComments: (JourneyComment & Models.Document)[];
+  journeyEntries: (JourneyEntry & Models.Document)[];
 };
 
 export type PlantWithImages = Models.Document &

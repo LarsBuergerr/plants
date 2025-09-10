@@ -3,19 +3,26 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { databases, storage } from "@/lib/appwrite";
 import { Models, Query } from "appwrite";
 import { ID } from "appwrite";
-import { JourneyComment } from "@/types/journey_comment.type";
-import { JourneyImage } from "@/types/journey_image.type";
+import { JourneyEntry, JourneyEntryWithUrl } from "@/types/journey_entry.type";
+
+interface EntriesState {
+  entries: (Models.Document & JourneyEntryWithUrl)[];
+  hasMore: boolean;
+  lastCursor?: string;
+}
 
 interface AppState {
   plants: (Models.Document & PlantWithImages)[];
   loading: boolean;
   error: string | null;
+  entriesByPlant: Record<string, EntriesState>;
 }
 
 const initialState: AppState = {
   plants: [],
   loading: false,
   error: null,
+  entriesByPlant: {},
 };
 
 export const fetchPlants = createAsyncThunk(
@@ -124,8 +131,7 @@ export const createPlant = createAsyncThunk(
           botanicalName: botanicalName,
           lastWateredAt: lastWateredAt,
           headerImage: headerImage,
-          journeyImages: [],
-          journeyComments: [],
+          journeyEntries: [],
         }
       )) as Models.Document & PlantWithImages;
 
@@ -195,60 +201,114 @@ export const deletePlantById = createAsyncThunk(
   }
 );
 
-export const addJourneyComment = createAsyncThunk(
-  "plants/addJourneyComment",
+export const addJourneyEntry = createAsyncThunk(
+  "plants/addJourneyEntry",
   async (
     {
-      plantId,
+      plant,
+      imageId,
       comment,
       icon,
       date,
-    }: { plantId: string; comment: string; icon?: string; date: Date },
+    }: {
+      plant: string;
+      imageId?: string;
+      comment?: string;
+      icon?: string;
+      date: Date;
+    },
     { rejectWithValue }
   ) => {
     try {
-      const newComment = (await databases.createDocument(
+      const newEntry = (await databases.createDocument(
         "68a70f580027558c1ff5",
-        "68bc57f7000de0726cba",
+        "journey_entries",
         ID.unique(),
         {
-          plant: plantId,
+          plant,
+          imageId,
           comment,
           icon,
           date,
         }
       )) as Models.Document;
-      return newComment as Models.Document & JourneyComment;
+
+      return {
+        ...newEntry,
+        imageUrl: imageId
+          ? storage.getFilePreview("plant_journey_images", imageId)
+          : undefined,
+      } as Models.Document & JourneyEntryWithUrl;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-export const addJourneyImage = createAsyncThunk(
-  "plants/addJourneyImage",
+export const updateJourneyEntry = createAsyncThunk(
+  "plants/updateJourneyEntry",
   async (
     {
+      id,
+      data,
       plantId,
-      imageId,
-      icon,
-      date,
-    }: { plantId: string; imageId: string; icon?: string; date: Date },
+    }: { id: string; data: Partial<JourneyEntry>; plantId: string },
     { rejectWithValue }
   ) => {
     try {
-      const newImage = (await databases.createDocument(
+      const updatedEntry = (await databases.updateDocument(
         "68a70f580027558c1ff5",
-        "68bc571800090c2c0f11",
-        ID.unique(),
-        {
-          plant: plantId,
-          imageId,
-          icon,
-          date,
-        }
-      )) as Models.Document;
-      return newImage as Models.Document & JourneyImage;
+        "journey_entries",
+        id,
+        data as Models.DataWithoutDocumentKeys & Partial<JourneyEntry>
+      )) as Models.Document & JourneyEntryWithUrl;
+
+      if (updatedEntry.imageId) {
+        updatedEntry.imageUrl = storage.getFilePreview(
+          "plant_journey_images",
+          updatedEntry.imageId
+        );
+      }
+
+      return { updatedEntry, plantId }; // pass plantId separately
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const fetchJourneyEntries = createAsyncThunk(
+  "plants/fetchJourneyEntries",
+  async (
+    {
+      plantId,
+      limit = 5,
+      cursor,
+    }: { plantId: string; limit?: number; cursor?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const queries = [Query.equal("plant", plantId), Query.limit(limit)];
+      if (cursor) {
+        queries.push(Query.cursorAfter(cursor));
+      }
+
+      const docs = (
+        await databases.listDocuments(
+          "68a70f580027558c1ff5",
+          "journey_entries",
+          queries
+        )
+      ).documents as Models.Document[] as (Models.Document &
+        JourneyEntryWithUrl)[];
+
+      const data = docs.map((entry) => ({
+        ...entry,
+        imageUrl: entry.imageId
+          ? storage.getFilePreview("plant_journey_images", entry.imageId)
+          : undefined,
+      }));
+
+      return { plantId, data, cursor };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -313,7 +373,6 @@ const plantSlice = createSlice({
       }
     });
 
-    // DELETE
     builder.addCase(deletePlantById.fulfilled, (state, action) => {
       state.plants = state.plants.filter((p) => p.$id !== action.payload);
     });
@@ -322,30 +381,74 @@ const plantSlice = createSlice({
       state.error = action.payload as string;
     });
 
-    builder.addCase(addJourneyComment.rejected, (state, action) => {
+    builder.addCase(addJourneyEntry.rejected, (state, action) => {
       state.error = action.payload as string;
     });
 
-    builder.addCase(addJourneyComment.fulfilled, (state, action) => {
-      const plant = state.plants.find(
-        (p) => p.$id === action.payload.plant.$id
-      );
+    builder.addCase(addJourneyEntry.fulfilled, (state, action) => {
+      const newEntry = action.payload as JourneyEntryWithUrl;
+      const plantId = newEntry.plant.$id;
+
+      const plant = state.plants.find((p) => p.$id === plantId);
       if (plant) {
-        plant.journeyComments.push(action.payload);
+        plant.journeyEntries.push(newEntry);
+      }
+
+      const prev = state.entriesByPlant[plantId] || {
+        entries: [],
+        hasMore: true,
+      };
+
+      state.entriesByPlant[plantId] = {
+        ...prev,
+        entries: [...prev.entries, newEntry].filter(
+          (entry, idx, arr) => arr.findIndex((e) => e.$id === entry.$id) === idx
+        ),
+      };
+    });
+
+    builder.addCase(fetchJourneyEntries.fulfilled, (state, action) => {
+      const { plantId, data, cursor } = action.payload as {
+        plantId: string;
+        data: (Models.Document & JourneyEntryWithUrl)[];
+        cursor?: string;
+      };
+
+      const prev = state.entriesByPlant[plantId] || {
+        entries: [],
+        hasMore: true,
+      };
+
+      state.entriesByPlant[plantId] = {
+        entries: [...prev.entries, ...data].filter(
+          (entry, idx, arr) => arr.findIndex((e) => e.$id === entry.$id) === idx
+        ),
+        hasMore: data.length > 0,
+        lastCursor:
+          data.length > 0 ? data[data.length - 1].$id : prev.lastCursor,
+      };
+    });
+
+    builder.addCase(updateJourneyEntry.fulfilled, (state, action) => {
+      const { updatedEntry, plantId } = action.payload;
+
+      const plant = state.plants.find((p) => p.$id === plantId);
+      if (plant) {
+        const index = plant.journeyEntries.findIndex(
+          (e) => e.$id === updatedEntry.$id
+        );
+        if (index !== -1) plant.journeyEntries[index] = updatedEntry;
+      }
+
+      const prev = state.entriesByPlant[plantId];
+      if (prev) {
+        const index = prev.entries.findIndex((e) => e.$id === updatedEntry.$id);
+        if (index !== -1) prev.entries[index] = updatedEntry;
       }
     });
 
-    builder.addCase(addJourneyImage.rejected, (state, action) => {
+    builder.addCase(updateJourneyEntry.rejected, (state, action) => {
       state.error = action.payload as string;
-    });
-
-    builder.addCase(addJourneyImage.fulfilled, (state, action) => {
-      const plant = state.plants.find(
-        (p) => p.$id === action.payload.plant.$id
-      );
-      if (plant) {
-        plant.journeyImages.push(action.payload);
-      }
     });
   },
 });
