@@ -10,7 +10,7 @@ import { Divider } from "@heroui/divider";
 import { EditIcon } from "@/components/icons";
 import { emojiMap } from "@/components/emoji-picker-modal";
 import { Card, CardHeader } from "@heroui/card";
-import { SquarePen } from "lucide-react";
+import { PlusCircleIcon, SquarePen } from "lucide-react";
 import AddJourneyEntryModal from "@/components/add-journey-entry-modal";
 import { fetchJourneyEntries } from "@/store/plantSlice";
 import { JourneyEntryWithUrl } from "@/types/journey_entry.type";
@@ -62,8 +62,9 @@ export default function PlantPage() {
   }
 
   const sortedEntries = [...entryState.entries].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
+
   return (
     <DefaultLayout>
       <section className="flex flex-col gap-6 max-w-3xl mx-auto py-8">
@@ -75,13 +76,13 @@ export default function PlantPage() {
             <Button
               color="primary"
               className="text-white"
-              size="sm"
               onPress={() => {
                 setEditingEntry(null);
                 setIsEntryModalOpen(true);
               }}
+              isIconOnly
             >
-              new entry <EditIcon />
+              <PlusCircleIcon width={20} />
             </Button>
           </div>
         </div>

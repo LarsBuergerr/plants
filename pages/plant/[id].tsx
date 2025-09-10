@@ -78,7 +78,7 @@ export default function PlantPage() {
               isIconOnly
               onPress={() => setIsDeleteModalOpen(true)}
             >
-              <Trash2 />
+              <Trash2 width={20} />
             </Button>
 
             <Button
@@ -86,7 +86,7 @@ export default function PlantPage() {
               onPress={() => setIsModalOpen(true)}
               isIconOnly
             >
-              <SquarePen />
+              <SquarePen width={20} />
             </Button>
 
             <Button
@@ -95,7 +95,7 @@ export default function PlantPage() {
               onPress={() => router.push(`/journey/${plant.$id}`)}
             >
               <span className="hidden md:inline">journey</span>
-              <Route />
+              <Route width={20} />
             </Button>
           </div>
         </div>

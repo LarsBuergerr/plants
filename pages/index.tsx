@@ -14,6 +14,7 @@ import { PlantWithImages } from "@/types/plant.type";
 import WaterBubble from "@/components/water-bubble";
 import { useRouter } from "next/router";
 import { CheckCircleIcon, PlusCircleIcon } from "@/components/icons";
+import { Droplets } from "lucide-react";
 
 export default function IndexPage() {
   const router = useRouter();
@@ -80,7 +81,7 @@ export default function IndexPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
           {plants.map((plant) => (
             <Card className="relative" key={plant.$id}>
               <CardHeader className="pb-0 pt-2 px-3 flex-col items-start min-h-[3em] md:min-h-[80px]">
@@ -95,10 +96,12 @@ export default function IndexPage() {
                 <h4 className="hidden md:block lg:block font-bold text-small text-default-500">
                   {plant.botanicalName || "\u00A0"}
                 </h4>
-                <h4 className="hidden md:block lg:block font-bold text-md">
-                  {"last watered at " +
-                    new Date(plant.lastWateredAt).toLocaleString()}
-                </h4>
+                <div className="flex flex-row gap-2">
+                  <Droplets width={20} />
+                  <h4 className="hidden md:block lg:block font-bold text-md">
+                    {new Date(plant.lastWateredAt).toDateString()}
+                  </h4>
+                </div>
               </CardHeader>
               <CardBody
                 className="overflow-visible py-3 px-3"
