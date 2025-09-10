@@ -287,7 +287,11 @@ export const fetchJourneyEntries = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const queries = [Query.equal("plant", plantId), Query.limit(limit)];
+      const queries = [
+        Query.equal("plant", plantId),
+        Query.limit(limit),
+        Query.orderAsc("date"),
+      ];
       if (cursor) {
         queries.push(Query.cursorAfter(cursor));
       }

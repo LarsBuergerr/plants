@@ -44,16 +44,14 @@ export default function AddJourneyEntryModal({
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    if (!open) {
-      setSelectedFile(null);
-      setComment(existingEntry?.comment || "");
-      setImageDate(
-        existingEntry
-          ? new Date(existingEntry.date).toISOString().slice(0, 16)
-          : new Date().toISOString().slice(0, 16)
-      );
-      setSelectedEmoji(existingEntry?.icon || "leaf");
-    }
+    setSelectedFile(null);
+    setComment(existingEntry?.comment || "");
+    setImageDate(
+      existingEntry
+        ? new Date(existingEntry.date).toISOString().slice(0, 16)
+        : new Date().toISOString().slice(0, 16)
+    );
+    setSelectedEmoji(existingEntry?.icon || "leaf");
   }, [open, existingEntry]);
 
   const handleSubmit = async () => {
@@ -133,7 +131,6 @@ export default function AddJourneyEntryModal({
                     <SelectedIcon className="w-6 h-6 text-white" />
                   )}
                 </Button>
-
                 <Input
                   type="text"
                   className="w-full"
@@ -141,15 +138,15 @@ export default function AddJourneyEntryModal({
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                 />
-
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    setSelectedFile(e.target.files ? e.target.files[0] : null)
-                  }
-                />
               </div>
+
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setSelectedFile(e.target.files ? e.target.files[0] : null)
+                }
+              />
 
               <Input
                 type="datetime-local"

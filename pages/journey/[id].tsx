@@ -41,7 +41,7 @@ export default function PlantPage() {
 
   useEffect(() => {
     if (id && typeof id === "string" && entryState.entries.length === 0) {
-      dispatch(fetchJourneyEntries({ plantId: id, limit: 5 }));
+      dispatch(fetchJourneyEntries({ plantId: id, limit: 10 }));
     }
   }, [id, dispatch]);
 
