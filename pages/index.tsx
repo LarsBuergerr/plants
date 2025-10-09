@@ -97,7 +97,7 @@ export default function IndexPage() {
                   {plant.botanicalName || "\u00A0"}
                 </h4>
                 <div className="flex flex-row gap-2">
-                  <Droplets width={20} />
+                  <Droplets width={20} className="hidden md:block lg:block" />
                   <h4 className="hidden md:block lg:block font-bold text-md">
                     {new Date(plant.lastWateredAt).toDateString()}
                   </h4>
