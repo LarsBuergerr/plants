@@ -110,12 +110,16 @@ export const createPlant = createAsyncThunk(
       name,
       botanicalName,
       lastWateredAt,
+      lastFertilizedAt,
+      lastRepottedAt,
       headerImage,
     }: {
       uid: string;
       name: string;
       botanicalName?: string;
       lastWateredAt: Date;
+      lastFertilizedAt?: Date;
+      lastRepottedAt?: Date;
       headerImage?: string;
     },
     { rejectWithValue }
@@ -130,6 +134,8 @@ export const createPlant = createAsyncThunk(
           name: name,
           botanicalName: botanicalName,
           lastWateredAt: lastWateredAt,
+          lastFertilizedAt: lastFertilizedAt,
+          lastRepottedAt: lastRepottedAt,
           headerImage: headerImage,
           journeyEntries: [],
         }

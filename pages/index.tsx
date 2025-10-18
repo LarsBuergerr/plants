@@ -11,10 +11,11 @@ import { Button } from "@heroui/button";
 import AddPlantModal from "@/components/add-plant-modal";
 import { Models } from "appwrite";
 import { PlantWithImages } from "@/types/plant.type";
-import WaterBubble from "@/components/water-bubble";
+import WaterBubble from "@/components/date-bubble";
 import { useRouter } from "next/router";
 import { CheckCircleIcon, PlusCircleIcon } from "@/components/icons";
 import { Droplets } from "lucide-react";
+import DateBubble from "@/components/date-bubble";
 
 export default function IndexPage() {
   const router = useRouter();
@@ -90,7 +91,12 @@ export default function IndexPage() {
                     {plant.name}
                   </p>
                   <div className="flex items-center gap-2">
-                    <WaterBubble plant={plant} width={30} height={30} />
+                    <DateBubble
+                      type="water"
+                      plant={plant}
+                      width={30}
+                      height={30}
+                    />
                   </div>
                 </div>
                 <h4 className="hidden md:block lg:block font-bold text-small text-default-500">

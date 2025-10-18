@@ -6,6 +6,8 @@ export type Plant = Models.Document & {
   name: string;
   botanicalName?: string;
   lastWateredAt: Date;
+  lastFertilizedAt?: Date;
+  lastRepottedAt?: Date;
   headerImage?: string;
   favorite?: boolean;
 

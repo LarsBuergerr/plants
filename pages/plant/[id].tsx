@@ -14,9 +14,7 @@ import {
   ModalFooter,
 } from "@heroui/modal";
 import AddPlantModal from "@/components/add-plant-modal";
-import WaterBubble from "@/components/water-bubble";
-import { EditIcon, SendIcon, TrashIcon } from "@/components/icons";
-
+import DateBubble from "@/components/date-bubble";
 import {
   Droplets,
   FlaskConical,
@@ -39,11 +37,7 @@ export default function PlantPage() {
 
   useEffect(() => {
     if (id && typeof id === "string" && !plant) {
-      try {
-        dispatch(fetchPlantById({ id }));
-      } catch (error) {
-        console.error("Failed to fetch plant:", error);
-      }
+      dispatch(fetchPlantById({ id }));
     }
   }, [id, plant, dispatch]);
 
@@ -99,25 +93,28 @@ export default function PlantPage() {
             </Button>
           </div>
         </div>
+
         <p className="text-default-500">{plant.botanicalName}</p>
         <p className="text-default-500">
           last watered: {new Date(plant.lastWateredAt).toLocaleDateString()}
         </p>
 
+        {/* --- NEW Bubble Section --- */}
         <div className="flex gap-4 justify-between">
           <div className="flex gap-2 items-center">
             <Droplets />
-            <WaterBubble plant={plant} width={55} height={35} />
+            <DateBubble type="water" plant={plant} width={55} height={35} />
           </div>
           <div className="flex gap-2 items-center">
             <FlaskConical />
-            <WaterBubble plant={plant} width={55} height={35} />
+            <DateBubble type="fertilize" plant={plant} width={55} height={35} />
           </div>
           <div className="flex gap-2 items-center">
             <Archive />
-            <WaterBubble plant={plant} width={55} height={35} />
+            <DateBubble type="repot" plant={plant} width={55} height={35} />
           </div>
         </div>
+        {/* --- END Bubble Section --- */}
 
         {plant.headerImageUrl && (
           <div className="w-full aspect-square rounded-xl overflow-hidden">
@@ -137,6 +134,7 @@ export default function PlantPage() {
         plant={plant}
       />
 
+      {/* Delete confirmation modal */}
       <Modal
         isOpen={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}

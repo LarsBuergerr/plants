@@ -31,6 +31,12 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
   const [lastWateredAt, setLastWateredAt] = useState(
     new Date().toISOString().slice(0, 16)
   );
+  const [lastFertilizedAt, setLastFertilizedAt] = useState(
+    new Date().toISOString().slice(0, 16)
+  );
+  const [lastRepottedAt, setLastRepottedAt] = useState(
+    new Date().toISOString().slice(0, 16)
+  );
   const [headerFile, setHeaderFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +47,16 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
       setLastWateredAt(
         new Date(plant.lastWateredAt).toISOString().slice(0, 16)
       );
+      if (plant.lastFertilizedAt) {
+        setLastFertilizedAt(
+          new Date(plant.lastFertilizedAt).toISOString().slice(0, 16)
+        );
+      }
+      if (plant.lastRepottedAt) {
+        setLastRepottedAt(
+          new Date(plant.lastRepottedAt).toISOString().slice(0, 16)
+        );
+      }
     } else {
       setName("");
       setLastWateredAt(new Date().toISOString().slice(0, 16));
@@ -54,6 +70,8 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
     setBotanicalName("");
     setName("");
     setLastWateredAt(new Date().toISOString().slice(0, 16));
+    setLastFertilizedAt(new Date().toISOString().slice(0, 16));
+    setLastRepottedAt(new Date().toISOString().slice(0, 16));
   };
 
   const handleSubmit = async () => {
@@ -92,6 +110,8 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
               name,
               botanicalName,
               lastWateredAt: new Date(lastWateredAt),
+              lastFertilizedAt: new Date(lastFertilizedAt),
+              lastRepottedAt: new Date(lastRepottedAt),
               headerImage: headerImageId ? headerImageId : undefined,
             },
           })
@@ -103,6 +123,8 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
             name,
             botanicalName,
             lastWateredAt: new Date(lastWateredAt),
+            lastFertilizedAt: new Date(lastFertilizedAt),
+            lastRepottedAt: new Date(lastRepottedAt),
             headerImage: headerImageId ? headerImageId : undefined,
           })
         ).unwrap();
@@ -116,6 +138,8 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
       setBotanicalName("");
       setName("");
       setLastWateredAt(new Date().toISOString().slice(0, 16));
+      setLastFertilizedAt(new Date().toISOString().slice(0, 16));
+      setLastRepottedAt(new Date().toISOString().slice(0, 16));
     }
   };
 
@@ -145,6 +169,18 @@ export default function AddPlantModal({ open, onOpenChange, plant }: Props) {
                 type="datetime-local"
                 value={lastWateredAt}
                 onChange={(e) => setLastWateredAt(e.target.value)}
+              />
+              <Input
+                label="last fertilized at"
+                type="datetime-local"
+                value={lastFertilizedAt}
+                onChange={(e) => setLastFertilizedAt(e.target.value)}
+              />
+              <Input
+                label="last repotted at"
+                type="datetime-local"
+                value={lastRepottedAt}
+                onChange={(e) => setLastRepottedAt(e.target.value)}
               />
 
               <Input
