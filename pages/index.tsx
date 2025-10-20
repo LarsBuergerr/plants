@@ -14,7 +14,7 @@ import { PlantWithImages } from "@/types/plant.type";
 import WaterBubble from "@/components/date-bubble";
 import { useRouter } from "next/router";
 import { CheckCircleIcon, PlusCircleIcon } from "@/components/icons";
-import { Droplets } from "lucide-react";
+import { Circle, CircleCheck, Droplets } from "lucide-react";
 import DateBubble from "@/components/date-bubble";
 
 export default function IndexPage() {
@@ -23,6 +23,8 @@ export default function IndexPage() {
   const { currUid } = useSelector((state: RootState) => state.app);
   const { plants, loading } = useSelector((state: RootState) => state.plants);
 
+  const [editMode, setEditMode] = useState(false);
+  const [selectedPlants, setSelectedPlants] = useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPlant, setSelectedPlant] = useState<
     (Models.Document & PlantWithImages) | undefined
@@ -64,8 +66,7 @@ export default function IndexPage() {
               className="text-white"
               variant="solid"
               color="secondary"
-              startContent="add"
-              onPress={handleAddPlant}
+              onPress={() => setEditMode(!editMode)}
             >
               <CheckCircleIcon />
             </Button>
@@ -99,7 +100,7 @@ export default function IndexPage() {
                     />
                   </div>
                 </div>
-                <h4 className="hidden md:block lg:block font-bold text-small text-default-500">
+                <h4 className="hidden md:block lg:block font-bold text-small text-default-500 line-clamp-1">
                   {plant.botanicalName || "\u00A0"}
                 </h4>
                 <div className="flex flex-row gap-2">
@@ -109,11 +110,42 @@ export default function IndexPage() {
                   </h4>
                 </div>
               </CardHeader>
+
               <CardBody
-                className="overflow-visible py-3 px-3"
-                onClick={() => router.push(`/plant/${plant.$id}`)}
+                className={`overflow-visible py-3 px-3 relative ${
+                  editMode ? "z-2 cursor-pointer" : "cursor-pointer"
+                }`}
+                onClick={() => {
+                  if (editMode) {
+                    const newSelectedPlants = new Set(selectedPlants);
+                    if (selectedPlants.has(plant.$id)) {
+                      newSelectedPlants.delete(plant.$id);
+                    } else {
+                      newSelectedPlants.add(plant.$id);
+                    }
+                    setSelectedPlants(newSelectedPlants);
+                  } else {
+                    router.push(`/plant/${plant.$id}`);
+                  }
+                }}
               >
-                <div className="relative aspect-square md:aspect-5/6 w-full overflow-hidden rounded-xl">
+                {editMode && (
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                    <div className="bg-transparent rounded-full">
+                      {selectedPlants.has(plant.$id) ? (
+                        <Circle className="text-white w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24" />
+                      ) : (
+                        <CircleCheck className="text-white w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24" />
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  className={`relative aspect-square md:aspect-5/6 w-full overflow-hidden rounded-xl ${
+                    editMode ? "opacity-50" : ""
+                  }`}
+                >
                   <Image
                     loading="eager"
                     alt={plant.name}
