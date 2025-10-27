@@ -22,6 +22,7 @@ import {
   Route,
   Trash2,
   SquarePen,
+  SprayCan,
 } from "lucide-react";
 
 export default function PlantPage() {
@@ -106,7 +107,7 @@ export default function PlantPage() {
             <DateBubble type="water" plant={plant} width={55} height={35} />
           </div>
           <div className="flex gap-2 items-center">
-            <FlaskConical />
+            <SprayCan />
             <DateBubble type="fertilize" plant={plant} width={55} height={35} />
           </div>
           <div className="flex gap-2 items-center">
